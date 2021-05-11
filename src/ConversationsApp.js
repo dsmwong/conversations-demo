@@ -1,6 +1,7 @@
 import React from "react";
 import { Badge, Icon, Layout, Spin, Typography } from "antd";
 import { Client as ConversationsClient } from "@twilio/conversations";
+import Axios from "axios";
 
 import "./assets/Conversation.css";
 import "./assets/ConversationSection.css";
@@ -66,15 +67,33 @@ class ConversationsApp extends React.Component {
     this.conversationsClient.shutdown();
   };
 
-  getToken = () => {
+  getToken = async () => {
     // Paste your unique Chat token function
-    const myToken = "<Your token here>";
-    this.setState({ token: myToken }, this.initConversations);
+
+    const url = process.env.ACCESS_TOKEN_URL;
+
+    console.log(url);
+
+    try {
+      const res = await Axios.post(url, { identity: this.state.name });
+      console.log(res.data);
+      console.log("Token: " + res.data.token);
+      const myToken = res.data.token;
+      this.setState({ token: myToken }, this.initConversations);
+    } catch (e) {
+      console.error(e);
+      this.setState({ token: "" }, this.logOut);
+    }
+
+    // const myToken = "<Your token here>";
+    // this.setState({ token: myToken }, this.initConversations);
   };
 
   initConversations = async () => {
     window.conversationsClient = ConversationsClient;
-    this.conversationsClient = await ConversationsClient.create(this.state.token);
+    this.conversationsClient = await ConversationsClient.create(
+      this.state.token
+    );
     this.setState({ statusString: "Connecting to Twilio…" });
 
     this.conversationsClient.on("connectionStateChanged", (state) => {
@@ -109,11 +128,15 @@ class ConversationsApp extends React.Component {
         });
     });
     this.conversationsClient.on("conversationJoined", (conversation) => {
-      this.setState({ conversations: [...this.state.conversations, conversation] });
+      this.setState({
+        conversations: [...this.state.conversations, conversation]
+      });
     });
     this.conversationsClient.on("conversationLeft", (thisConversation) => {
       this.setState({
-        conversations: [...this.state.conversations.filter((it) => it !== thisConversation)]
+        conversations: [
+          ...this.state.conversations.filter((it) => it !== thisConversation)
+        ]
       });
     });
   };
@@ -166,7 +189,8 @@ class ConversationsApp extends React.Component {
                 <HeaderItem>
                   <Text strong style={{ color: "white" }}>
                     {selectedConversation &&
-                      (selectedConversation.friendlyName || selectedConversation.sid)}
+                      (selectedConversation.friendlyName ||
+                        selectedConversation.sid)}
                   </Text>
                 </HeaderItem>
                 <HeaderItem style={{ float: "right", marginLeft: "auto" }}>
