@@ -1,11 +1,12 @@
 {
-  "name": "conversations-demo-sdk-update",
+  "name": "conversation-serverless-token-ghlinked",
   "version": "0.1.0",
   "private": true,
   "proxy": "http://localhost:3001",
   "dependencies": {
     "@twilio/conversations": "^0.1.0",
     "antd": "^3.26.20",
+    "axios": "^0.21.1",
     "ngrok": "^3.4.0",
     "node-sass": "^4.12.0",
     "prop-types": "^15.7.2",

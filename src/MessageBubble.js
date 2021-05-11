@@ -17,9 +17,18 @@ class MessageBubble extends Component {
   }
 
   componentDidMount = async () => {
+    let type = "system";
+    try {
+      type = (await this.props.message.getParticipant()).type;
+    } catch (e) {
+      //console.log(e);
+      console.log(
+        `[${this.props.message.author}] is no longer part of the conversation`
+      );
+    }
     this.setState({
       ...this.state,
-      type: (await this.props.message.getParticipant()).type
+      type: type
     });
     if (this.state.hasMedia) {
       this.props.message.media
@@ -63,6 +72,7 @@ class MessageBubble extends Component {
         <div className={divStyle}>
           <div>
             <strong>
+              {type === "system" && <Icon type={"robot"} />}
               {type === "whatsapp" && (
                 <Icon style={{ fontSize: "16px" }} component={WhatsappIcon} />
               )}
